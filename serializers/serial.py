@@ -1,8 +1,8 @@
-class AbstractSerializer(object):
+class Serializer(object):
 	data_type = None
 
 	def __init__(self, file):
-		super(AbstractSerializer, self).__init__()
+		super(Serializer, self).__init__()
 
 		self.data_type = ""
 		self.file = file
@@ -22,7 +22,7 @@ class AbstractSerializer(object):
 		:param data: Python list of lists of size n x 3, where n = records total
 		:type data: list
 		:return: Serialized data. The exact type depends on this method's definition in implementations
-			of AbstractSerializer
+			of Serializer
 		:rtype: *
 		"""
 		pass

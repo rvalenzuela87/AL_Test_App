@@ -1,8 +1,8 @@
 import xml
-from abstract_serial import AbstractSerializer
+from serial import Serializer
 
 
-class XMLSerial(AbstractSerializer):
+class XMLSerial(Serializer):
 	data_type = "xml"
 
 	def __init__(self):

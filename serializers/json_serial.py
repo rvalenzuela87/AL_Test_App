@@ -1,8 +1,8 @@
 import json
-from abstract_serial import AbstractSerializer
+from serial import Serializer
 
 
-class JSONSerial(AbstractSerializer):
+class JSONSerial(Serializer):
 	data_type = "json"
 
 	def __init__(self):

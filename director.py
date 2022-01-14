@@ -1,45 +1,55 @@
-import re as regexp
 from collections import namedtuple
-from file_manager import FileManager
-import validations
+from .file_manager import FileManager
+from utils import validations
 
-
-RecordRow = namedtuple("Record", ["names", "last_name", "address", "city", "phone"])
+Record = namedtuple("Record", ["names", "last_name", "address", "city", "phone"])
 
 
 class Director(object):
 	__data = None
 
-	def __init__(self, serializer=None, file_path=""):
+	def __init__(self):
 		super(Director, self).__init__()
 
 		self.__data = []
 
-	def append_row(self, row_data):
+	def append(self, data):
 		try:
-			record_row = RecordRow(*row_data)
+			record = Record(*data)
 		except RuntimeError:
 			raise RuntimeError("Record data received as argument is not complete")
 
-		assert validations.validate_name(record_row.name)
-		assert validations.validate_name(record_row.last_name)
-		assert validations.validate_address(record_row.address)
-		assert validations.validate_city(record_row.city)
-		assert validations.validate_phone(record_row.phone)
+		assert validations.validate_name(record.name)
+		assert validations.validate_name(record.last_name)
+		assert validations.validate_address(record.address)
+		assert validations.validate_city(record.city)
+		assert validations.validate_phone(record.phone)
 
-	def delete_row(self, row_index):
+		self.__data.append(record)
+
+	def delete(self, index):
+		"""
+
+		:param index:
+		:type index: int
+		:return: Returns 'true' if the operation completed successfully. Otherwise raises a RuntimeError exception
+		:rtype: bool
+		"""
+
 		try:
-			self.__data.pop(row_index)
+			self.__data.pop(index)
 		except IndexError:
-			raise RuntimeError("Index %i not found" % row_index)
+			raise RuntimeError("Index %i not found" % index)
+		except(TypeError, ValueError):
+			raise RuntimeError("")
 		else:
 			return True
 
-	def display(self, filter_exp=""):
+	def list(self, filter_exp=""):
 		pass
 
 	def save(self):
 		FileManager().write(self.__data)
 
-	def export(self, format_type):
+	def export(self, extension):
 		pass
