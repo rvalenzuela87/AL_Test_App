@@ -16,50 +16,58 @@ commands_table = [
 ]
 
 
-def extract_command_data_from_str(command_str):
-	split_command_str = command_str.split()
-	command_name = split_command_str[0]
-	parameters = split_command_str[1:]
-	args_keys = []
+def cmnd_name_args_from_str(command_str):
+	try:
+		command_name, arguments = regexp.match(
+			r'^([a-zA-Z0-9_]+)\s?((?:(?:[a-zA-Z0-9_]=)?[a-zA-Z0-9\s,\.\-\(\)+]+\|?)*)$', command_str
+		).groups()
+	except(TypeError, ValueError):
+		print(
+			regexp.match(
+				r'^([a-zA-Z0-9_]+)\s?((?:(?:[a-zA-Z0-9_]=)?[a-zA-Z0-9\s,\.\-\(\)+]+\|?)*)$', command_str
+			).groups()
+		)
+		raise RuntimeError("Error: Command mal-constructed")
 
-	for param in parameters:
+	arguments = arguments.split("|")
+	kwd_args = []
+
+	for arg in arguments:
 		try:
-			kwd, value = param.split("=")
+			kwd, value = arg.split("=")
 		except ValueError:
 			break
 		else:
-			args_keys.append((kwd, value))
+			kwd_args.append((kwd, value))
 	else:
 		# All parameters are keyword-value pairs. Therefore, the function can end safely
-		return command_name, tuple(), tuple(args_keys)
+		return command_name, tuple(), dict(kwd_args)
 
 	# The for loop ended early. Therefore, not all arguments are key-value pairs. Make sure no key-value argument
 	try:
-		assert len(args_keys) == 0
+		assert len(kwd_args) == 0
 	except AssertionError:
 		# The parameters received are a mixed of positional and key-value arguments. Only one
 		# type is supported at a time. Therefore, raise an exception
 		raise RuntimeError("Mixed values received")
 	else:
 		# All arguments received are positional arguments for the command.
-		return command_name, tuple(parameters), tuple()
+		return command_name, tuple(arguments), {}
 
 
 def load_command_module(command_name):
-	sys_path_changed = False
-
 	# Assume the command module is already in memory
 	for k in sys.modules.keys():
 		if k.split(".").pop() == command_name:
 			return sys.modules[k]
 
-	# Try to import the module
-
+	# The module is not on memory. Therefore, try to import it
 	try:
 		exec("from commands import %s" % command_name)
 	except ImportError:
 		raise ImportError("Unable to find the \"%s\" command module" % command_name)
 
+	# Find the module in memory and return it
 	for k in sys.modules.keys():
 		if k.split(".").pop() == command_name and type(sys.modules[k]).__name__ == "module":
 			return sys.modules[k]
@@ -72,12 +80,14 @@ if __name__ == '__main__':
 	abort = False
 
 	while True:
-		command = input("Your choice:")
+		try:
+			command, args, kwargs = cmnd_name_args_from_str(input("Your choice:"))
+		except RuntimeError as exc:
+			print("Error >> {}".format(exc))
+			continue
 
 		for sn, ln in commands_table:
 			if command == sn or command == ln:
-				print("Executing (%s|%s) command" % (sn, ln))
-
 				if command == "ex" or command == "exit":
 					abort = True
 				else:
@@ -86,10 +96,10 @@ if __name__ == '__main__':
 					except ImportError as exc:
 						print("Error: {}".format(exc))
 					else:
-						print(">> Module {} imported correctly".format(command_module))
-						command_module.__getattribute__(command_module.CLASS_NAME)(None)
+						command_module.__getattribute__(command_module.CLASS_NAME)(None, *args, **kwargs)
 				break
 		else:
+			# The loop ended
 			print("Error: Unsupported command")
 
 		if abort is True:

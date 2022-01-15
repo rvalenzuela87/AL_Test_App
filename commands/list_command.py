@@ -27,7 +27,6 @@ class ListCommand(Command):
 					except KeyError:
 						params_values[ln] = None
 
-
 	def help(self):
 		return "Help for List command"
 

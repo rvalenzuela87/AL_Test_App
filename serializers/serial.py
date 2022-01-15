@@ -11,7 +11,7 @@ class Serializer(object):
 		"""
 		Loads the information contained in the object received as argument to a python list of lists.
 
-		:return: Python list of lists of size n x 3. Where n = records total
+		:return: Python list of lists of size n x 5. Where n = records total
 		:rtype: list
 		"""
 		pass
