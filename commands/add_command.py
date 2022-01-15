@@ -1,4 +1,5 @@
 from commands.command import Command
+from utils import validations
 
 
 CLASS_NAME = "AddCommand"
@@ -20,19 +21,8 @@ class AddCommand(Command):
 		else:
 			self.execute()
 
-	def prompt(self):
-		print("Add Prompt Mode")
-
-		while True:
-			# Ask for the filter parameters
-			for ln in self.params_long_names:
-				self.params_values.append(input("%s:" % ln.capitalize()))
-
-			print("ListCommand >> Params complete")
-			break
-
 	def help(self):
 		return "Help for Add command"
 
 	def execute(self):
-		print(">> Adding new record: {}".format(self.params_values))
+		print(">> Adding new record: {}".format(self.params_args))
