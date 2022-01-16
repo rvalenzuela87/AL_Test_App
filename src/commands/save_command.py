@@ -1,11 +1,11 @@
-from commands.command import Command
+from .command import Command
 
-CLASS_NAME = "OpenCommand"
+CLASS_NAME = "SaveCommand"
 
 
-class OpenCommand(Command):
+class SaveCommand(Command):
 	def __init__(self, receiver, *args, **kwargs):
-		super(OpenCommand, self).__init__(receiver, *args, **kwargs)
+		super(SaveCommand, self).__init__(receiver, *args, **kwargs)
 
 		self.params_names = ["filename"]
 		self.params_short_names = ["n"]
@@ -19,7 +19,7 @@ class OpenCommand(Command):
 		self.execute()
 
 	def help(self):
-		return "Help for Open command"
+		return "Help for Save command"
 
 	def execute(self):
-		print("Opening file %s" % self.params_args["filename"])
+		print("Saving file %s" % self.params_args["filename"])

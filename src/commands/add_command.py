@@ -1,5 +1,4 @@
-from commands.command import Command
-from utils import validations
+from .command import Command
 
 
 CLASS_NAME = "AddCommand"

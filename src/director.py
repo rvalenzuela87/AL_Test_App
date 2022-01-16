@@ -1,6 +1,6 @@
 from collections import namedtuple
 from .file_manager import FileManager
-from utils import validations
+from src.utils import validations
 
 Record = namedtuple("Record", ["names", "last_name", "address", "city", "phone"])
 

@@ -1,4 +1,4 @@
-from commands.command import Command
+from .command import Command
 
 CLASS_NAME = "ListCommand"
 
