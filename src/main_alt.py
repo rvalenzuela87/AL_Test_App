@@ -1,3 +1,5 @@
+from sys import argv
+
 from utils import commands_utils
 
 
@@ -6,20 +8,12 @@ def start():
 	commands_short_names = ["n", "o", "ex"]
 	start_menu = " | ".join("%s (%s)" % (ln.capitalize(), sn) for ln, sn in zip(commands_names, commands_short_names))
 
-	print("\n")
-	print("".join(["#" for __ in range(50)]))
-	print("#")
-	print("# Personal Records Database")
-	print("#")
-	print("".join(["#" for __ in range(50)]))
-	print("\n")
-
-	print("Welcome. Please choose one of the following options to start:\n")
+	print("[i] Welcome. Please choose one of the following options to start:\n")
 	print(start_menu)
 	choice = input("\n>>:")
 
 	while choice.lower() not in commands_names and choice.lower() not in commands_short_names:
-		print("Option \'{}\' is not supported. Please, choose one of the following options to start:\n".format(choice))
+		print("[E] Option \'{}\' is not supported. Please, choose one of the following options to start:\n".format(choice))
 		print(start_menu)
 		choice = input("\n>>:")
 
@@ -43,7 +37,7 @@ def main_loop():
 		except RuntimeError as exc:
 			# The command's name and arguments couldn't be extracted from the user input string. Therefore, print the
 			# error and go back to the beginning of the loop
-			print("-- Error: {}\n".format(exc))
+			print("[E] {}\n".format(exc))
 			continue
 		else:
 			# The command's name and arguments were successfully extracted from the user input. Now, make sure the
@@ -57,18 +51,36 @@ def main_loop():
 					# The command's name is not in either list. This means the command is not supported. Therefore,
 					# print the error and go back to the beginning of the loop
 					print(
-						"-- Error: Unsupported option \'{}\'. Please choose one of options from the main "
+						"[i] Unsupported option \'{}\'. Please choose one of options from the main "
 						"menu\n".format(choice)
 					)
 					continue
 
 			# The command name is a supported command
-			print("\nExecuting \'{}\'\n".format(choice))
+			print("\n[i] Executing \'{}\'\n".format(choice))
 
 			# If the user chose to exit the application, then break the endless loop
 			if cmd_name == "exit":
-				print("Goodbye!...\n")
+				print("[i] Goodbye!...\n")
 				break
 
 if __name__ == '__main__':
-	start()
+	print("\n")
+	print("".join(["#" for __ in range(50)]))
+	print("#")
+	print("# Personal Records Database")
+	print("#")
+	print("".join(["#" for __ in range(50)]))
+	print("\n")
+
+	try:
+		file_name = argv[1]
+
+		assert len(file_name) > 0
+	except(AssertionError, IndexError):
+		# No argument file was submitted. Therefore, initiate a completely new list
+		print("[i] Initiating with a new list\n")
+	else:
+		print("[i] Working file: {}\n".format(file_name))
+
+	main_loop()
