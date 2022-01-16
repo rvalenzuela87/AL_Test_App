@@ -1,4 +1,4 @@
-from src.utils.commands_utils import *
+from utils.commands_utils import *
 
 commands_table = [
 	("n", "new"),

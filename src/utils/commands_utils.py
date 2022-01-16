@@ -23,10 +23,17 @@ def load_command_module(command_name):
 			return sys.modules[k]
 
 
+def get_commands_names():
+	commands_names = ["new", "open", "save", "list", "add", "delete", "export", "help", "exit"]
+	commands_short_names = ["n", "o", "s", "l", "a", "d", "e", "h", "ex"]
+
+	return commands_names, commands_short_names
+
+
 def get_command_name_and_args_from_str(command_str):
 	try:
 		command_name, arguments = regexp.match(
-			r'^([a-zA-Z0-9_]+)\s?((?:(?:[a-zA-Z0-9_]=)?\"[a-zA-Z0-9\s,\.\-\(\)+]+\"\|?)*)$', command_str
+			r'^([a-zA-Z0-9_]+)\s?((?:(?:[a-zA-Z0-9_]+=)?\"[a-zA-Z0-9\s,\.\-\(\)+]+\"\|?)*)$', command_str
 		).groups()
 	except(AttributeError, TypeError, ValueError):
 		raise RuntimeError("Error: Command mal-constructed: %s" % command_str)
