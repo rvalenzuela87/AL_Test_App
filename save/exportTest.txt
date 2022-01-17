@@ -1,0 +1,17 @@
+name: Rafael
+lastname: Valenzuela Ochoa
+address: Villagran 10
+city: Hmo, Son
+phone: 2135680
+
+name: Cristina
+lastname: Valenzuela
+address: Villagran 10
+city: Hmo, Sonora
+phone: 2105451
+
+name: Adriana
+lastname: Ochoa Valenzuela
+address: Villagran 10
+city: Hermosillo, Sonora
+phone: 2135680

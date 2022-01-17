@@ -3,6 +3,6 @@
   "serials_dir": "serializers",
   "export_types": ["txt", "html"],
   "exporters": "exporters",
-  "save_dir": "save",
-  "default_dir": "save"
+  "default_save_dir": "save",
+  "default_export_dir": "save"
 }

@@ -34,9 +34,7 @@ class Command(object):
 	def set_params(self, *args, **kwargs):
 		# Makes sure the arguments received are all either positional or keyword arguments. Mixing the two is not
 		# supported. An exception is raised if this condition is not met
-		try:
-			assert (len(args) == 0 and len(kwargs) > 0) or (len(args) > 0 and len(kwargs) == 0)
-		except AssertionError:
+		if len(args) > 0 and (kwargs and len(kwargs.keys()) > 0):
 			# The method received a mix of positional and keyword arguments. This is not supported to avoid
 			# confusion and to simplify the logic in the code.
 			raise RuntimeError(

@@ -19,9 +19,3 @@ class JSONSerial(Serializer):
 		data_dict = dict(zip(headers, zip(*data)))
 
 		return json.JSONEncoder().encode(data_dict)
-
-	def write(self, data, headers, filepath):
-		dict_data = dict(zip(headers, zip(*data)))
-
-		with open(filepath, 'w') as fh:
-			json.dump(dict_data, fh)

@@ -14,11 +14,9 @@ class AddCommand(Command):
 		try:
 			self.set_params(*args, **kwargs)
 		except RuntimeError as exc:
-			print("[i] Missing parameters values: {}".format(exc))
 			self.prompt()
-			self.execute()
-		else:
-			self.execute()
+
+		self.execute()
 
 	@staticmethod
 	def help():

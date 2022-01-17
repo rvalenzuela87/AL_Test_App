@@ -1,5 +1,5 @@
 from .command import Command
-from utils import commands_utils
+from AL_Test_App.src.utils import commands_utils
 
 CLASS_NAME = "HelpCommand"
 

@@ -1,6 +1,7 @@
 import sys
 import os
 
+import utils.config_utils as config_utils
 import utils.commands_utils as commands_utils
 from records_manager import RecordsManager as RecordsManager
 
@@ -27,7 +28,8 @@ def start():
 def main_loop():
 	# The singleton records manager was supposed to be set during the main part of this script and may or may not
 	# hold values, already. This depends on whether the script was called with a file name as argument or not
-	records_manager = RecordsManager()
+	rec_man = RecordsManager()
+
 	commands_names, commands_short_names = commands_utils.get_commands_names()
 	command_mods = dict.fromkeys(commands_names)
 	main_menu = " | ".join("%s (%s)" % (ln.capitalize(), sn) for ln, sn in zip(commands_names, commands_short_names))
@@ -72,21 +74,29 @@ def main_loop():
 
 		try:
 			command_mods[cmd_name].__getattribute__(command_mods[cmd_name].CLASS_NAME)(
-				records_manager, *cmd_args, **cmd_kwargs
+				rec_man, *cmd_args, **cmd_kwargs
 			)
 		except AttributeError:
+			# The command module has not been stored yet. Therefore, initialize and add it to the list
 			try:
 				command_mods[cmd_name] = commands_utils.load_command_module(cmd_name)
 			except RuntimeError as exc:
 				print("[E] {}\n".format(exc))
 				continue
-			else:
+
+			try:
 				command_mods[cmd_name].__getattribute__(command_mods[cmd_name].CLASS_NAME)(
-					records_manager, *cmd_args, **cmd_kwargs
+					rec_man, *cmd_args, **cmd_kwargs
 				)
+			except(RuntimeError, ValueError, TypeError) as exc:
+				print("\n[E] {}\n".format(exc))
+		except(RuntimeError, ValueError, TypeError) as exc:
+			print("\n[E] {}\n".format(exc))
 
 
 if __name__ == '__main__':
+	# Load configuration
+	config_utils.reload_config()
 
 	print("\n")
 	print("".join(["#" for __ in range(50)]))

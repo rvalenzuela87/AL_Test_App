@@ -2,7 +2,6 @@ import os
 import re as regexp
 
 from .command import Command
-from utils import config_utils
 
 CLASS_NAME = "SaveCommand"
 
@@ -14,8 +13,17 @@ class SaveCommand(Command):
 		self.params_names = ["filename"]
 		self.params_short_names = ["n"]
 
-		if args or kwargs:
+		if (args and len(args) > 0) or (kwargs and len(kwargs.keys()) > 0):
 			self.set_params(*args, **kwargs)
+		else:
+			# Check if there is a working file in the global RecordsManager singleton
+			try:
+				filename = os.environ['WORKING_FILE']
+			except KeyError:
+				# No global constant WORKING_FILE found
+				pass
+			else:
+				self.params_args = {"filename": filename}
 
 		self.execute()
 
@@ -24,7 +32,7 @@ class SaveCommand(Command):
 		return "Help for Save command"
 
 	def prompt(self, missing_only=False):
-		supported_file_types = config_utils.get_serial_types()
+		supported_file_types = os.environ["SERIAL_TYPES"].split("|")
 		filename_pattern = regexp.compile(r'^[a-zA-Z0-9_-]+\.([a-zA-Z0-9]+)$')
 
 		while True:
@@ -61,9 +69,7 @@ class SaveCommand(Command):
 	def set_params(self, *args, **kwargs):
 		# Makes sure the arguments received are all either positional or keyword arguments. Mixing the two is not
 		# supported. An exception is raised if this condition is not met
-		try:
-			assert (len(args) == 0 and len(kwargs) > 0) or (len(args) > 0 and len(kwargs) == 0)
-		except AssertionError:
+		if len(args) > 0 and (kwargs and len(kwargs.keys()) > 0):
 			# The method received a mix of positional and keyword arguments. This is not supported to avoid
 			# confusion and to simplify the logic in the code.
 			raise RuntimeError(
@@ -71,7 +77,7 @@ class SaveCommand(Command):
 				"for more information on how the arguments should be delivered to the command."
 			)
 
-		supported_file_types = config_utils.get_serial_types()
+		supported_file_types = os.environ["SERIAL_TYPES"].split("|")
 		self.params_args = dict.fromkeys(self.params_names)
 
 		try:
@@ -95,7 +101,7 @@ class SaveCommand(Command):
 		# and the user was not asked for it via a call to the prompt method. Therefore, make sure the filename
 		# has a supported extension
 		try:
-			extension = os.path.splitext(self.params_args["filename"])[1]
+			extension = os.path.splitext(self.params_args["filename"])[1][1:]
 
 			assert extension in supported_file_types
 		except AssertionError:
@@ -123,9 +129,11 @@ class SaveCommand(Command):
 		return self
 
 	def execute(self):
-		if not self.params_args:
+		try:
+			filename = self.params_args["filename"]
+		except(AttributeError, KeyError):
 			self.prompt()
+			filename = self.params_args["filename"]
 
-		print("[i] Saving file %s\n" % self.params_args["filename"])
-
-		self.receiver.write(self.params_args["filename"])
+		self.receiver.write(filename)
+		print("\n[i] Records saved to file {}\n".format(self.receiver.working_file_path()))

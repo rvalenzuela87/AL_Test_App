@@ -56,9 +56,15 @@ class RecordsManager(object):
 		except RuntimeError:
 			raise RuntimeError("No file loaded yet")
 
+	def working_file_path(self):
+		return self._working_file_path
+
 	def set_working_file_name(self, filename):
 		self._working_file_path = os.path.join(self._save_directory, filename)
 		self.__force_load_serializer()
+
+		os.environ["WORKING_FILE"] = filename
+		os.environ["WORKING_FILE_PATH"] = self._working_file_path
 
 	def working_file_directory(self):
 		try:
@@ -176,20 +182,25 @@ class RecordsManager(object):
 
 	def write(self, filename=""):
 		if len(filename) > 0:
-			self._working_file_path = os.path.join(self._save_directory, filename)
-			self.__force_load_serializer()
+			self.set_working_file_name(filename)
 
 		try:
 			serial_data = self._serializer.serial(self._records, self._headers)
 		except AttributeError:
 			raise RuntimeError(
-				"[E] No serializer set, yet. Try setting a working file name or giving an argument "
+				"No serializer set, yet. Try setting a working file name or giving an argument "
 				"for parameter \'filename\'"
 			)
 		except(RuntimeError, Exception) as exc:
-			print("[E] {}".format(exc))
+			print("{}".format(exc))
 		else:
 			with open(self._working_file_path, 'w') as fh:
 				fh.write(serial_data)
 
-			print("[i] Records saved to file {}".format(self._working_file_path))
+	def export(self, filename):
+		extension = self.__file_extension(filename)
+		exporter_mod = config_utils.get_exporter_module(extension)
+
+		exporter = exporter_mod.__getattribute__(exporter_mod.CLASS_NAME)()
+		exporter.set_file_name(filename)
+		exporter.export(exporter.format_data(self._records, self._headers))

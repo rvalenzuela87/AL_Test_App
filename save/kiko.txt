@@ -1,0 +1,17 @@
+name: Rafael
+lastname: Valenzuela
+address: Villagran 10
+city: Hmo, Sonora
+phone: 123456
+
+name: Rafael
+lastname: Valenzuela
+address: Villagran 10
+city: Hmo, Sonora
+phone: 123456
+
+name: Rafael
+lastname: Valenzuela
+address: Villagran 10
+city: Hmo, Sonora
+phone: 123456

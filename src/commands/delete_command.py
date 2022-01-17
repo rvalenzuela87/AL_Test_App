@@ -41,4 +41,4 @@ class DeleteCommand(Command):
 					"No receiver set prior to executing the \'delete\' command"
 				)
 
-		print("[i] Record with index {}, deleted\n".format(self.params_args["index"]))
+		print("\n[i] Record with index {}, deleted\n".format(self.params_args["index"]))

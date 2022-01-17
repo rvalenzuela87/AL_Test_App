@@ -23,13 +23,3 @@ class Serializer(object):
 		:rtype: *
 		"""
 		pass
-
-	def write(self, data, filepath):
-		"""
-
-		:param data:
-		:type data: list
-		:return:
-		:rtype: bool
-		"""
-		pass

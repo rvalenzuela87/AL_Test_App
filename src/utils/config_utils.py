@@ -1,7 +1,7 @@
 import os
 import sys
-import re as regexp
 import json
+import re as regexp
 
 
 def get_conf():
@@ -15,12 +15,38 @@ def get_conf():
 	except(ValueError, RuntimeError):
 		raise RuntimeError("Unable to read config file")
 
+def reload_config():
+	config = get_conf()
+	app_base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
+	os.environ["DEFAULT_SAVE_DIRECTORY"] = os.path.join(app_base_dir, config["default_save_dir"])
+	os.environ["DEFAULT_EXPORT_DIRECTORY"] = os.path.join(app_base_dir, config["default_export_dir"])
+	os.environ["SERIAL_TYPES"] = "|".join(config["serial_types"])
+	os.environ["EXPORT_TYPES"] = "|".join(config["export_types"])
+
 
 def get_serial_types():
 	try:
-		return get_conf()["serial_types"]
+		return os.environ["SERIAL_TYPES"].split("|")
 	except KeyError:
-		raise RuntimeError("Unable get the supported serialization types from the config file (config.json)")
+		reload_config()
+
+		try:
+			return os.environ["SERIAL_TYPES"].split("|")
+		except KeyError:
+			raise RuntimeError("Unable get the supported serialization types from the config file (config.json)")
+
+
+def get_export_types():
+	try:
+		return os.environ["EXPORT_TYPES"].split("|")
+	except KeyError:
+		reload_config()
+
+		try:
+			return os.environ["EXPORT_TYPES"].split("|")
+		except KeyError:
+			raise RuntimeError("Unable get the supported export extensions from the config file (config.json)")
 
 
 def get_serializers_dir(abs=False):
@@ -103,16 +129,58 @@ def get_exporters_names():
 		raise RuntimeError("Unable get the app\'s exporters names from the config file (config.json)")
 
 
+def get_exporter_module(extension):
+	exporter_mod_pattern = regexp.compile(r'^(?:.*)\.([a-zA-Z]+)_exporter$')
+
+	# Firts, look for the exporter module in memory
+	for k in sys.modules.keys():
+		try:
+			assert exporter_mod_pattern.match(k).groups()[0] == extension
+		except AssertionError:
+			pass
+		except(AttributeError, IndexError):
+			# The key may not belong to an exporter module or, if it does, it isn't the correspondant one.
+			# Therefore, move on to the next module in memory
+			continue
+		else:
+			# The current key belongs to an exporter module and it corresponds to the type received as argument
+			return sys.modules[k]
+
+	# At this point, the correct module was not found in memory. Therefore, import the exporters package
+	# and look for the module again
+	import AL_Test_App.src.exporters
+
+	for k in sys.modules.keys():
+		try:
+			assert exporter_mod_pattern.match(k).groups()[0] == extension
+		except AssertionError:
+			pass
+		except(AttributeError, IndexError):
+			# The key may not belong to an exporter module or, if it does, it isn't the correspondant one.
+			# Therefore, move on to the next module in memory
+			continue
+		else:
+			# The current key belongs to an exporter module and it corresponds to the type received as argument
+			return sys.modules[k]
+	else:
+		raise RuntimeError("No exporter module found for type \'{}\'".format(extension))
+
+
 def get_save_directory(abs=False):
 	try:
-		dir = get_conf()["save_dir"]
+		save_dir = os.environ["DEFAULT_SAVE_DIRECTORY"]
 	except KeyError:
-		raise RuntimeError("Unable to get the serializers directory from the configuration file config.json")
+		reload_config()
+
+		try:
+			save_dir = os.environ["DEFAULT_SAVE_DIRECTORY"]
+		except KeyError:
+			raise RuntimeError("Unable to get the default save directory from the configuration file (config.json)")
 
 	if not abs:
-		return dir
+		return os.path.split(save_dir)[1]
 	else:
-		return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), dir)
+		return save_dir
 
 
 def get_default_directory(abs=False):
