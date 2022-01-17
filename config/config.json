@@ -2,5 +2,7 @@
   "serial_types": ["json", "xml"],
   "serials_dir": "serializers",
   "export_types": ["txt", "html"],
-  "exporters": "exporters"
+  "exporters": "exporters",
+  "save_dir": "save",
+  "default_dir": "save"
 }

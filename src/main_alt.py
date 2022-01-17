@@ -1,7 +1,8 @@
-from sys import argv
+import sys
+import os
 
-from utils import commands_utils
-from records_manager import RecordsManager
+import utils.commands_utils as commands_utils
+from records_manager import RecordsManager as RecordsManager
 
 
 def start():
@@ -86,6 +87,7 @@ def main_loop():
 
 
 if __name__ == '__main__':
+
 	print("\n")
 	print("".join(["#" for __ in range(50)]))
 	print("#")
@@ -94,15 +96,17 @@ if __name__ == '__main__':
 	print("".join(["#" for __ in range(50)]))
 	print("\n")
 
-	try:
-		file_name = argv[1]
+	rec_man = RecordsManager()
 
-		assert len(file_name) > 0
+	try:
+		filename = sys.argv[1]
+
+		assert len(filename) > 0
 	except(AssertionError, IndexError):
 		# No argument file was submitted. Therefore, initiate a completely new list
 		print("[i] Initiating with a new list\n")
-		RecordsManager()
 	else:
-		print("[i] Working file: {}\n".format(file_name))
+		print("[i] Working file: {}\n".format(filename))
+		rec_man.load_from_file(filename)
 
 	main_loop()

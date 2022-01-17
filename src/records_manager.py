@@ -1,9 +1,15 @@
+import os
+
+from utils import config_utils
+
+
 class RecordsManager(object):
 	_SINGLE = None
 	_headers = []
 	_records = None
 	_serializer = None
 	_working_file_path = None
+	_save_directory = None
 
 	def __new__(cls, *args, **kwargs):
 		if cls._SINGLE:
@@ -12,19 +18,24 @@ class RecordsManager(object):
 			cls._SINGLE = object.__new__(cls)
 			cls._headers = ["name", "lastname", "address", "city", "phone"]
 			cls._records = []
+			cls._save_directory = config_utils.get_save_directory(abs=True)
 
 			return cls._SINGLE
 
 	@classmethod
 	def __file_extension(cls, file_path):
 		try:
-			extension = os.path.splitext(file_path)[1]
+			extension = os.path.splitext(file_path)[1][1:]
 
 			assert len(extension) > 0
 		except(IndexError, AssertionError):
 			raise RuntimeError("Unable to retrieve the file extension from path \'{}\'".format(file_path))
 		else:
 			return extension
+
+	def __force_load_serializer(self):
+		serial_mod = config_utils.get_serializer_module(self.__file_extension(self._working_file_path).lower())
+		self._serializer = serial_mod.__getattribute__(serial_mod.CLASS_NAME)()
 
 	@staticmethod
 	def __file_name(file_path):
@@ -33,23 +44,21 @@ class RecordsManager(object):
 		except(TypeError, ValueError, IndexError):
 			raise RuntimeError("No valid file path provided")
 
-	def load_from_file(self, file_path):
-		file_ext = self.__file_extension(file_path)
-		supported_exts = config_utils.get_serial_types()
-		serializers = dict(zip(supported_exts, (None for __ in range(len(supported_exts)))))
+	def load_from_file(self, filename):
+		self.set_working_file_name(filename)
+		data_dict = self._serializer.load(self._working_file_path)
 
-		try:
-			self._serializer = serializers[file_ext]
-		except KeyError:
-			raise RuntimeError("Unsupported file extension %s" % file_ext)
-
-		self._working_file_path = file_path
+		self._records = list(zip(*[data_dict[head] for head in self._headers]))
 
 	def working_file_name(self):
 		try:
 			return self.__file_name(self._working_file_path)
 		except RuntimeError:
 			raise RuntimeError("No file loaded yet")
+
+	def set_working_file_name(self, filename):
+		self._working_file_path = os.path.join(self._save_directory, filename)
+		self.__force_load_serializer()
 
 	def working_file_directory(self):
 		try:
@@ -165,11 +174,22 @@ class RecordsManager(object):
 	def empty_records(self):
 		self._records = []
 
-	def write(self, data):
-		# If no serializer is set yet, must probably a working file is also yet to be set
-		# Therefore, ask the user for a file name with a correct extension
-		# Check the user name and extension are supported
-		# Set the correct serializer
-		# Save the file
-		# Set the working file variable to the new file name
-		pass
+	def write(self, filename=""):
+		if len(filename) > 0:
+			self._working_file_path = os.path.join(self._save_directory, filename)
+			self.__force_load_serializer()
+
+		try:
+			serial_data = self._serializer.serial(self._records, self._headers)
+		except AttributeError:
+			raise RuntimeError(
+				"[E] No serializer set, yet. Try setting a working file name or giving an argument "
+				"for parameter \'filename\'"
+			)
+		except(RuntimeError, Exception) as exc:
+			print("[E] {}".format(exc))
+		else:
+			with open(self._working_file_path, 'w') as fh:
+				fh.write(serial_data)
+
+			print("[i] Records saved to file {}".format(self._working_file_path))

@@ -32,7 +32,7 @@ def get_serializers_dir(abs=False):
 	if not abs:
 		return dir
 	else:
-		return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "src", dir)
+		return os.path.join(os.path.dirname(os.path.dirname(__file__)), dir)
 
 
 def get_serializer_module(serial_type):
@@ -54,7 +54,7 @@ def get_serializer_module(serial_type):
 
 	# At this point, the correct module was not found in memory. Therefore, import the serializers package
 	# and look for the module again
-	from .. import serializers
+	import AL_Test_App.src.serializers
 
 	for k in sys.modules.keys():
 		try:
@@ -91,7 +91,7 @@ def get_serializers():
 				break
 		else:
 			# No file found for the current serialization type
-			serializer_mods.append(None)
+			continue
 
 	return serializer_mods
 
@@ -101,3 +101,19 @@ def get_exporters_names():
 		return get_conf()["exporters"]
 	except KeyError:
 		raise RuntimeError("Unable get the app\'s exporters names from the config file (config.json)")
+
+
+def get_save_directory(abs=False):
+	try:
+		dir = get_conf()["save_dir"]
+	except KeyError:
+		raise RuntimeError("Unable to get the serializers directory from the configuration file config.json")
+
+	if not abs:
+		return dir
+	else:
+		return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), dir)
+
+
+def get_default_directory(abs=False):
+	return get_save_directory(abs=abs)
