@@ -18,7 +18,8 @@ class ExportCommand(Command):
 
 		self.execute()
 
-	def help(self):
+	@staticmethod
+	def help():
 		return "Help for Export command"
 
 	def execute(self):

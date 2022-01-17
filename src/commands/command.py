@@ -1,17 +1,19 @@
 class Command(object):
+	receiver = None
 	params_names = None
 	params_short_names = None
 	params_args = None
 
 	def __init__(self, receiver, *args, **kwargs):
 		super(Command, self).__init__()
-		self._receiver = receiver
+		self.receiver = receiver
 
 		self.params_names = []
 		self.params_short_names = []
 		self.params_args = None
 
-	def help(self):
+	@staticmethod
+	def help():
 		pass
 
 	def params(self):

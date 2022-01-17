@@ -1,6 +1,7 @@
 from sys import argv
 
 from utils import commands_utils
+from records_manager import RecordsManager
 
 
 def start():
@@ -23,7 +24,11 @@ def start():
 		main_loop()
 
 def main_loop():
+	# The singleton records manager was supposed to be set during the main part of this script and may or may not
+	# hold values, already. This depends on whether the script was called with a file name as argument or not
+	records_manager = RecordsManager()
 	commands_names, commands_short_names = commands_utils.get_commands_names()
+	command_mods = dict.fromkeys(commands_names)
 	main_menu = " | ".join("%s (%s)" % (ln.capitalize(), sn) for ln, sn in zip(commands_names, commands_short_names))
 	choice = ""
 
@@ -39,30 +44,46 @@ def main_loop():
 			# error and go back to the beginning of the loop
 			print("[E] {}\n".format(exc))
 			continue
-		else:
-			# The command's name and arguments were successfully extracted from the user input. Now, make sure the
-			# command's name corresponds to an actual supported command in the application
-			if cmd_name not in commands_names:
-				# Look for the command's name in the list of commands short names. If found, replace the value
-				# input by the user
-				try:
-					cmd_name = commands_names[commands_short_names.index(cmd_name)]
-				except ValueError:
-					# The command's name is not in either list. This means the command is not supported. Therefore,
-					# print the error and go back to the beginning of the loop
-					print(
-						"[i] Unsupported option \'{}\'. Please choose one of options from the main "
-						"menu\n".format(choice)
-					)
-					continue
 
-			# The command name is a supported command
-			print("\n[i] Executing \'{}\'\n".format(choice))
+		# The command's name and arguments were successfully extracted from the user input. Now, make sure the
+		# command's name corresponds to an actual supported command in the application
+		if cmd_name not in commands_names:
+			# Look for the command's name in the list of commands short names. If found, replace the value
+			# input by the user
+			try:
+				cmd_name = commands_names[commands_short_names.index(cmd_name)]
+			except ValueError:
+				# The command's name is not in either list. This means the command is not supported. Therefore,
+				# print the error and go back to the beginning of the loop
+				print(
+					"[i] Unsupported option \'{}\'. Please choose one of options from the main "
+					"menu\n".format(choice)
+				)
+				continue
 
-			# If the user chose to exit the application, then break the endless loop
-			if cmd_name == "exit":
-				print("[i] Goodbye!...\n")
-				break
+		# The command name is a supported command
+		print("\n[i] Executing \'{}\' with args {} and kwargs {}\n".format(cmd_name, cmd_args, cmd_kwargs))
+
+		# If the user chose to exit the application, then break the endless loop
+		if cmd_name == "exit":
+			print("[i] Goodbye!...\n")
+			break
+
+		try:
+			command_mods[cmd_name].__getattribute__(command_mods[cmd_name].CLASS_NAME)(
+				records_manager, *cmd_args, **cmd_kwargs
+			)
+		except AttributeError:
+			try:
+				command_mods[cmd_name] = commands_utils.load_command_module(cmd_name)
+			except RuntimeError as exc:
+				print("[E] {}\n".format(exc))
+				continue
+			else:
+				command_mods[cmd_name].__getattribute__(command_mods[cmd_name].CLASS_NAME)(
+					records_manager, *cmd_args, **cmd_kwargs
+				)
+
 
 if __name__ == '__main__':
 	print("\n")
@@ -80,6 +101,7 @@ if __name__ == '__main__':
 	except(AssertionError, IndexError):
 		# No argument file was submitted. Therefore, initiate a completely new list
 		print("[i] Initiating with a new list\n")
+		RecordsManager()
 	else:
 		print("[i] Working file: {}\n".format(file_name))
 

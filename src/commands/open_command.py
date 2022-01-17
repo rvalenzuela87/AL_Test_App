@@ -18,7 +18,8 @@ class OpenCommand(Command):
 
 		self.execute()
 
-	def help(self):
+	@staticmethod
+	def help():
 		return "Help for Open command"
 
 	def execute(self):

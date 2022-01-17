@@ -7,23 +7,24 @@ class ListCommand(Command):
 	def __init__(self, receiver, *args, **kwargs):
 		super(ListCommand, self).__init__(receiver, *args, **kwargs)
 
-		self.params_names = ["filter"]
-		self.params_short_names = ["f"]
+		try:
+			self.params_names = kwargs.keys()
+		except AttributeError:
+			self.params_names = []
 
-		if len(kwargs) == 0 and len(args) == 0:
-			# Enter prompt mode
-			self.prompt()
-		else:
-			self.set_params(*args, **kwargs)
+		self.params_short_names = [n for n in self.params_names]
+		self.params_args = dict.fromkeys(self.params_names)
+
+		for k in self.params_names:
+			self.params_args[k] = kwargs[k]
 
 		self.execute()
 
-	def help(self):
+	@staticmethod
+	def help():
 		return "Help for List command"
 
 	def prompt(self, missing_only=True):
-		print("List Prompt Mode")
-
 		while True:
 			display_all = input("Display all records?(Y\\N):")
 
@@ -42,9 +43,36 @@ class ListCommand(Command):
 				continue
 
 	def execute(self):
+		# Format the records for printing in the command line
 		try:
-			assert len(self.params_args) == len(self.params_names)
-		except AssertionError:
-			raise RuntimeError("Arguments missing for command list")
+			filter = self.params_args["filter"]
+
+			assert len(filter) > 0
+		except(TypeError, KeyError, AssertionError):
+			# No filter was set. Then, use the 'all' option
+			filter = "*"
+
+		if len(self.params_args.keys()) == 0:
+			print("[i] Listing all records\n")
+			filter = ""
 		else:
-			print(">> Records displayed")
+			print(
+				"[i] Listing all records matching {}\n".format(["=".join([k, self.params_args[k]]) for k in self.params_args.keys()])
+			)
+
+		try:
+			records = self.receiver.filter_records(**self.params_args)
+		except AttributeError:
+			if self.receiver:
+				# The receiver set has no method named records. Therefore, it is not compatible with this command
+				raise RuntimeError(
+					"The object set as receiver has no \'records\' method, therefore, it is incompatible "
+					"with the \'list\' command"
+				)
+			else:
+				raise RuntimeError(
+					"No receiver set prior to executing the \'list\' command"
+				)
+
+		print("\n".join(" - ".join(row) for row in records))
+		print("\n----- End -----\n")

@@ -6,6 +6,7 @@ ARGS_SEP = "|"
 
 
 def load_command_module(command_name):
+	command_name = "_".join([command_name, "command"])
 	# Assume the command module is already in memory
 	for k in sys.modules.keys():
 		if k.split(".").pop() == command_name:
@@ -33,27 +34,36 @@ def get_commands_names():
 def get_command_name_and_args_from_str(command_str):
 	try:
 		command_name, arguments = regexp.match(
-			r'^([a-zA-Z0-9_]+)\s?((?:(?:[a-zA-Z0-9_]+=)?\"[a-zA-Z0-9\s,\.\-\(\)+]+\"\|?)*)$', command_str
+			r'^([a-zA-Z0-9_]+)\s?((?:(?:[a-zA-Z0-9_]+=)?\"[a-zA-Z0-9\s,\.\-\(\)+*]+\"\|?)*)$', command_str
 		).groups()
 	except(AttributeError, TypeError, ValueError):
 		raise RuntimeError("Error: Command mal-constructed: %s" % command_str)
 
 	arguments = arguments.split("|")
+	kwd_pattern = regexp.compile(r'^([a-zA-Z0-9_]+)=\"([a-zA-Z0-9\s,\.\-\(\)+*]+)\"$')
+	pos_pattern = regexp.compile(r'^\"([a-zA-Z0-9\s,\.\-\(\)+*]+)\"$')
 	kwd_args = []
 	pos_args = []
 
 	for arg in arguments:
 		# Assume the argument is a keyword-value pair
 		try:
-			kwd_args.append(tuple(arg.split("=")))
-		except ValueError:
-			# The argument is positional
-			pos_args.append(arg)
+			kwd_args.append(kwd_pattern.match(arg).groups())
+		except AttributeError:
+			# Assume the argument is positional
+			try:
+				pos_args.append(pos_pattern.match(arg).groups()[0])
+			except AttributeError:
+				# The argument is not a valid argument or is an empty string
+				continue
 
-	if len(kwd_args) == 0:
+	if len(kwd_args) > 0:
 		kwd_args_dict = dict(kwd_args)
 	else:
 		kwd_args_dict = {}
+
+	print("Positional arguments: {}".format(pos_args))
+	print("Keyword arguments: {}".format(kwd_args_dict))
 
 	return command_name, tuple(pos_args), kwd_args_dict
 

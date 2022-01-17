@@ -30,17 +30,17 @@ class FileManager(object):
 	@staticmethod
 	def __file_name(file_path):
 		try:
-			return os.path.split(file_path)[-1]
-		except(TypeError, ValueError):
+			return os.path.split(file_path)[1]
+		except(TypeError, ValueError, IndexError):
 			raise RuntimeError("No valid file path provided")
 
-	def load_file(self, file_path):
+	def load_from_file(self, file_path):
 		file_ext = self.__file_extension(file_path)
 		supported_exts = config_utils.get_serial_types()
 		serializers = dict(zip(supported_exts, (None for __ in range(len(supported_exts)))))
 
 		try:
-			serial = serializers[file_ext]
+			self._serializer = serializers[file_ext]
 		except KeyError:
 			raise RuntimeError("Unsupported file extension %s" % file_ext)
 

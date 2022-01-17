@@ -18,7 +18,8 @@ class SaveCommand(Command):
 
 		self.execute()
 
-	def help(self):
+	@staticmethod
+	def help():
 		return "Help for Save command"
 
 	def execute(self):
