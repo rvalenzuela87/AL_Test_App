@@ -1,5 +1,5 @@
 import xml
-from serial import Serializer
+from .serial import Serializer
 
 
 class XMLSerial(Serializer):

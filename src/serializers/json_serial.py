@@ -1,5 +1,5 @@
 import json
-from serial import Serializer
+from .serial import Serializer
 
 
 class JSONSerial(Serializer):

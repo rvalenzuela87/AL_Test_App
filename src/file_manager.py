@@ -1,4 +1,7 @@
 import os
+import re as regexp
+
+from .utils import config_utils
 
 
 class FileManager(object):
@@ -15,7 +18,14 @@ class FileManager(object):
 
 	@classmethod
 	def __file_extension(cls, file_path):
-		return cls.__file_name(file_path).split(".")[-1]
+		try:
+			extension = os.path.splitext(file_path)[1]
+
+			assert len(extension) > 0
+		except(IndexError, AssertionError):
+			raise RuntimeError("Unable to retrieve the file extension from path \'{}\'".format(file_path))
+		else:
+			return extension
 
 	@staticmethod
 	def __file_name(file_path):
@@ -26,14 +36,12 @@ class FileManager(object):
 
 	def load_file(self, file_path):
 		file_ext = self.__file_extension(file_path)
+		supported_exts = config_utils.get_serial_types()
+		serializers = dict(zip(supported_exts, (None for __ in range(len(supported_exts)))))
 
-		if file_ext == "json":
-			# Load a json serializer
-			pass
-		elif file_ext == "xml":
-			# Load an xml serializer
-			pass
-		else:
+		try:
+			serial = serializers[file_ext]
+		except KeyError:
 			raise RuntimeError("Unsupported file extension %s" % file_ext)
 
 		self._working_file_path = file_path
