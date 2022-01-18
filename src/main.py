@@ -3,7 +3,7 @@ from utils.commands_utils import *
 commands_table = [
 	("n", "new"),
 	("o", "open"),
-	("s", "save"),
+	("s", "backup"),
 	("l", "list"),
 	("a", "add"),
 	("d", "delete"),

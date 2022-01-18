@@ -2,6 +2,8 @@ from .command import Command
 
 
 CLASS_NAME = "AddCommand"
+CMD_NAME = "add"
+CMD_SHRT_NAME = "a"
 
 
 class AddCommand(Command):
@@ -24,7 +26,7 @@ class AddCommand(Command):
 
 	def execute(self):
 		try:
-			self.receiver.add_record([self.params_args[k] for k in self.params_args.keys()])
+			self.receiver.add_record([self.params_args[k] for k in self.params_names])
 		except AttributeError:
 			if self.receiver:
 				# The receiver set has no method named records. Therefore, it is not compatible with this command
@@ -37,4 +39,4 @@ class AddCommand(Command):
 					"No receiver set prior to executing the \'add\' command"
 				)
 
-		print("[i] New record added: {}\n".format(self.params_args))
+		print("\n[i] New record added: {}\n".format(self.params_args))

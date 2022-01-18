@@ -1,6 +1,6 @@
+import os
 import sys
 import re as regexp
-
 
 ARGS_SEP = "|"
 
@@ -25,6 +25,28 @@ def load_command_module(command_name):
 
 
 def get_commands_names():
+	commands_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "commands")
+	command_mod_pattern = regexp.compile(r'^([a-zA-Z0-9]*)_command.py$')
+	commands_names = []
+	commands_short_names = []
+
+	for fn in os.listdir(commands_dir):
+		try:
+			command_name = command_mod_pattern.match(fn).groups()[0]
+		except AttributeError:
+			continue
+
+		try:
+			command_mod = load_command_module(command_name)
+			assert command_mod is not None
+		except(AssertionError, RuntimeError):
+			continue
+
+		commands_names.append(command_mod.CMD_NAME)
+		commands_short_names.append(command_mod.CMD_SHRT_NAME)
+
+	return commands_names, commands_short_names
+
 	commands_names = ["new", "open", "save", "list", "add", "delete", "export", "help", "exit"]
 	commands_short_names = ["n", "o", "s", "l", "a", "d", "e", "h", "ex"]
 

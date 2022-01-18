@@ -4,6 +4,8 @@ import re as regexp
 from .command import Command
 
 CLASS_NAME = "ExportCommand"
+CMD_NAME = "export"
+CMD_SHRT_NAME = "e"
 
 
 class ExportCommand(Command):
@@ -121,5 +123,5 @@ class ExportCommand(Command):
 			self.prompt()
 			filename = self.params_args["filename"]
 
-		self.receiver.export(filename)
-		print("\n[i] Records exported to \'{}\'".format(self.receiver.working_file_path()))
+		filepath = self.receiver.export(filename)
+		print("\n[i] Records exported to \'{}\'\n".format(filepath))

@@ -204,3 +204,5 @@ class RecordsManager(object):
 		exporter = exporter_mod.__getattribute__(exporter_mod.CLASS_NAME)()
 		exporter.set_file_name(filename)
 		exporter.export(exporter.format_data(self._records, self._headers))
+
+		return exporter.filepath()

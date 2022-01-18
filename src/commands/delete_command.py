@@ -1,6 +1,8 @@
 from .command import Command
 
 CLASS_NAME = "DeleteCommand"
+CMD_NAME = "delete"
+CMD_SHRT_NAME = "d"
 
 
 class DeleteCommand(Command):

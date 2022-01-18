@@ -4,6 +4,8 @@ import re as regexp
 from .command import Command
 
 CLASS_NAME = "SaveCommand"
+CMD_NAME = "save"
+CMD_SHRT_NAME = "s"
 
 
 class SaveCommand(Command):
@@ -131,7 +133,7 @@ class SaveCommand(Command):
 	def execute(self):
 		try:
 			filename = self.params_args["filename"]
-		except(AttributeError, KeyError):
+		except(TypeError, KeyError):
 			self.prompt()
 			filename = self.params_args["filename"]
 

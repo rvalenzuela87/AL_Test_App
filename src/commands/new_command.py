@@ -1,6 +1,8 @@
 from .command import Command
 
 CLASS_NAME = "NewCommand"
+CMD_NAME = "new"
+CMD_SHRT_NAME = "n"
 
 
 class NewCommand(Command):

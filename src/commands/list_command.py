@@ -1,6 +1,8 @@
 from .command import Command
 
 CLASS_NAME = "ListCommand"
+CMD_NAME = "list"
+CMD_SHRT_NAME = "l"
 
 
 class ListCommand(Command):

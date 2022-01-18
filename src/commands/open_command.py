@@ -4,6 +4,8 @@ import re as regexp
 from .command import Command
 
 CLASS_NAME = "OpenCommand"
+CMD_NAME = "open"
+CMD_SHRT_NAME = "o"
 
 
 class OpenCommand(Command):

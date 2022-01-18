@@ -20,7 +20,6 @@ class TxtExporter(Exporter):
 		return "\n\n".join(format_rows)
 
 	def set_file_name(self, filename):
-
 		try:
 			assert len(filename) > 0
 			file_ext = os.path.splitext(filename)[1][1:].lower()

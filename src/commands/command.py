@@ -48,7 +48,6 @@ class Command(object):
 			# Assume the keyword arguments dictionary contains as many values as the number of necessary parameters
 			# for the command.
 			self.params_args = {}
-			missing_args = []
 
 			for ln, sn in zip(self.params_names, self.params_short_names):
 				try:
@@ -79,7 +78,7 @@ class Command(object):
 		if not missing_only:
 			# The inner arguments dictionary has to be reset first and then populate it with the user inputs
 			self.params_args = dict.fromkeys(self.params_names)
-			missing_arguments = self.params_args.keys()
+			missing_arguments = self.params_names
 		else:
 			# Find the arguments which have been set, already
 			try:
@@ -88,10 +87,13 @@ class Command(object):
 				# The inner arguments dictionary is None. This means no arguments have been set at this point.
 				# Therefore, the method will have to ask for all of them
 				self.params_args = dict.fromkeys(self.params_names)
-				missing_arguments = self.params_args.keys()
+				missing_arguments = self.params_names
 			else:
 				# Extract the arguments missing
-				missing_arguments = set(self.params_names).difference(current_arguments)
+				if len(current_arguments) > 0:
+					missing_arguments = set(self.params_names).difference(current_arguments)
+				else:
+					missing_arguments = self.params_names
 
 		for ln in missing_arguments:
 			self.params_args[ln] = input("%s:" % ln.capitalize())

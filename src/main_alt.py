@@ -31,6 +31,11 @@ def main_loop():
 	rec_man = RecordsManager()
 
 	commands_names, commands_short_names = commands_utils.get_commands_names()
+
+	# Add new entries for the exit option
+	commands_names.append("exit")
+	commands_short_names.append("ex")
+
 	command_mods = dict.fromkeys(commands_names)
 	main_menu = " | ".join("%s (%s)" % (ln.capitalize(), sn) for ln, sn in zip(commands_names, commands_short_names))
 	choice = ""

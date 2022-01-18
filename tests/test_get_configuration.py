@@ -70,12 +70,12 @@ class GetConfigTestCase(unittest.TestCase):
 
 		for et in exporters_types:
 			try:
-				exporter_module = config_utils.get_serializer_module(et)
+				exporter_module = config_utils.get_exporter_module(et)
 			except RuntimeError as exc:
 				self.fail("Unable to load or find module to export \'{}\': {}".format(et, exc))
 			else:
 				self.assertTrue(
 					type(exporter_module).__name__ == "module",
-					"A call to the function get_serializer_module is expected to return a module. "
+					"A call to the function get_exporter_module is expected to return a module. "
 					"Got type \'{}\', instead".format(type(exporter_module).__name__)
 				)

@@ -175,7 +175,7 @@ def get_save_directory(abs=False):
 		try:
 			save_dir = os.environ["DEFAULT_SAVE_DIRECTORY"]
 		except KeyError:
-			raise RuntimeError("Unable to get the default save directory from the configuration file (config.json)")
+			raise RuntimeError("Unable to get the default backup directory from the configuration file (config.json)")
 
 	if not abs:
 		return os.path.split(save_dir)[1]
