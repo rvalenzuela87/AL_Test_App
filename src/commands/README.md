@@ -69,7 +69,7 @@ specify a filename.
 Bear in mind that the command **asks for the file name only, not its path**. All backup files are
 looked for inside the *backup* directory by default. This was done for time constraints.
 
-    >>: open "backupFile.json"
+    >>: open 'backupFile.json'
 
 The app supports xml and json file extensions, only. For expanding the range of supported extensions,
 please refer to the *serializers* subpackage's *README* file.
@@ -86,7 +86,7 @@ If no arguments are specified, then all the records in memory will be displayed.
 To display only the records filtered by *name* or those for which the *name* column matches a glob-like
 expression, call the command with the keyword argument *name*:
 
-    >>: list name="Raf*"
+    >>: list -name 'Raf*'
 
 For more information on the list command, refer to the command's help.
 
@@ -105,11 +105,11 @@ operation will be triggered.
 
 Next, an example of a call to the add command, with positional arguments, within the app.
 
-    >>: add "Rafael"|"Valenzuela"|"10 Mulholland Drv"|"Hollywood"|"123456"
+    >>: add 'Rafael' 'Valenzuela' '10 Mulholland Drv' 'Hollywood' '123456'
 
-A call to the add command,this time, with keyword arguments.
+A call to the add command, this time, with keyword arguments.
 
-    >>: add name="Rafael"|lastname="Valenzuela"|address="10 Mulholland Drv"|city="Hollywood"|phone="123456"
+    >>: add -name 'Rafael' -lastname 'Valenzuela' -address '10 Mulholland Drv' -city 'Hollywood' -phone '123456'
 
 For more information on the add command, refer to the command's help.
 
@@ -120,11 +120,11 @@ Deletes a row from the list of records currently in memory. It takes one positio
 
 To delete a specific row:
 
-    >>: delete index="4"
+    >>: delete -index '4'
 
 Or, with positional arguments:
 
-    >>: delete "4"
+    >>: delete '4'
 
 ### Save Command
 Creates a backup file with the records in memory. Currently, the app only offers support for json and xml
@@ -137,7 +137,7 @@ It takes a single positional or keyword argument.
 This argument is necessary for the command's execution so, if no argument is provided, then a prompt operation
 will be triggered, asking the user fo specify the backup file's name.
 
-    >>: save filename="backupFile.json"
+    >>: save -filename 'backupFile.json'
 
 By default, all backup files are stored inside the *backup* directory under the app's main directory. This was done
 for time constraints.
@@ -154,4 +154,4 @@ Supports a single positional or keyword argument.
 By default, the created files are saved to the *reports* sub directory under the app's main directory. This was
 done for time constraints.
 
-    >>: export filename="report.html"
+    >>: export -filename 'report.html'

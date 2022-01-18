@@ -23,8 +23,8 @@ class ExtractCommandInfoFromStringTestCase(unittest.TestCase):
 		"""
 
 		command_name = "cmnd"
-		command_args = ["\"Rafael\"", "\"Valenzuela Ochoa\"", "\"2135680\""]
-		expected_command_str = " ".join([command_name, commands_utils.ARGS_SEP.join(command_args)])
+		command_args = ["Rafael", "Valenzuela Ochoa", "2135680"]
+		expected_command_str = " ".join([command_name, " ".join("\'%s\'" % c for c in command_args)])
 		command_str = commands_utils.build_command_str(command_name, *command_args)
 
 		self.assertEqual(
@@ -40,9 +40,9 @@ class ExtractCommandInfoFromStringTestCase(unittest.TestCase):
 		"""
 
 		command_name = "cmnd"
-		command_kwd_args = [("name", "\"Rafael\""), ("lastname", "\"Valenzuela Ochoa\""), ("phone", "\"123456\"")]
+		command_kwd_args = [("name", "Rafael"), ("lastname", "Valenzuela Ochoa"), ("phone", "123456")]
 		expected_command_str = " ".join(
-			[command_name, commands_utils.ARGS_SEP.join("=".join(pair) for pair in command_kwd_args)]
+			[command_name, " ".join("-%s \'%s\'" % (kwd, arg) for kwd, arg in command_kwd_args)]
 		)
 		command_str = commands_utils.build_command_str(command_name, **dict(command_kwd_args))
 
@@ -61,14 +61,14 @@ class ExtractCommandInfoFromStringTestCase(unittest.TestCase):
 		"""
 
 		command_name = "cmnd"
-		command_args = ["\"Rafael\"", "\"Valenzuela Ochoa\"", "\"2135680\""]
-		command_kwd_args = [("name", "\"Rafael\""), ("lastname", "\"Valenzuela Ochoa\""), ("phone", "\"123456\"")]
+		command_args = ["Rafael", "Valenzuela Ochoa", "2135680"]
+		command_kwd_args = [("name", "Rafael"), ("lastname", "Valenzuela Ochoa"), ("phone", "123456")]
 
-		command_args_str = commands_utils.ARGS_SEP.join(command_args)
-		command_kwd_args_str = commands_utils.ARGS_SEP.join("=".join(pair) for pair in command_kwd_args)
+		command_args_str = " ".join("\'%s\'" % c for c in command_args)
+		command_kwd_args_str = " ".join("-%s \'%s\'" % (kwd, arg) for kwd, arg in command_kwd_args)
 
 		expected_command_str = " ".join(
-			[command_name, commands_utils.ARGS_SEP.join([command_args_str, command_kwd_args_str])]
+			[command_name, " ".join([command_args_str, command_kwd_args_str])]
 		)
 		command_str = commands_utils.build_command_str(command_name, *command_args, **dict(command_kwd_args))
 
@@ -87,9 +87,14 @@ class ExtractCommandInfoFromStringTestCase(unittest.TestCase):
 		"""
 
 		command_name = "cmnd"
-		command_args = ["\"Rafael\"", "\"Valenzuela Ochoa\"", "\"2135680\""]
+		command_args = ["Rafael", "Valenzuela Ochoa", "2135680"]
+		command_kwd_args = [("address", "Mulholland Drv"), ("city", "Twin Peaks")]
 
-		command_str = " ".join([command_name, commands_utils.ARGS_SEP.join(command_args)])
+		command_args_str = " ".join("\'%s\'" % c for c in command_args)
+		command_kwd_args_str = " ".join("-%s \'%s\'" % (kwd, arg) for kwd, arg in command_kwd_args)
+		command_kwd_args_dict = dict(command_kwd_args)
+
+		command_str = " ".join([command_name, command_args_str, command_kwd_args_str])
 
 		result = commands_utils.get_command_name_and_args_from_str(command_str)
 
@@ -127,10 +132,24 @@ class ExtractCommandInfoFromStringTestCase(unittest.TestCase):
 			"Got type {}, instead.".format(type(result[2]).__name__)
 		)
 
+		self.assertListEqual(
+			command_args,
+			result[1],
+			"The function failed to return the expected arguments from the command string. "
+			"Expected {}. Got {}".format(command_args, result[1])
+		)
+
+		self.assertDictEqual(
+			command_kwd_args_dict,
+			result[2],
+			"The function failed to return the expected keyword arguments from the command string. "
+			"Expected {}. Got {}".format(command_kwd_args_dict, result[2])
+		)
+
 	def test_command_malconstructed(self):
 		command_name = "cmnd"
 		command_args = ["Rafael", "Valenzuela Ochoa", "123456"]
-		command_str = " ".join([command_name, commands_utils.ARGS_SEP.join(command_args)])
+		command_str = " ".join([command_name, " ".join(command_args)])
 		error_mssg = "Expected the call to function get_command_name_and_args_from_str with argument \"{}\" to " \
 		             "raise a RuntimeError exception given that the argument string doesn\'t comply with the " \
 		             "expected form of a command string."

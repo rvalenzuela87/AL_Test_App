@@ -31,16 +31,16 @@ refer to the *commands* subpackage's *README* file within the *src* package.
 
 Positional arguments are stated as the following:
 
-    >>: add "Rafael"|"Valenzuela"|"10 Mulholland Drv"|"Hollywood"|"123456"
+    >>: add 'Rafael' 'Valenzuela' '10 Mulholland Drv' 'Hollywood' '123456'
 
 Keyword arguments are stated as the following:
 
-    >>: add name="Rafael"|lastname="Valenzuela"|address="10 Mulholland Drv"|city="Hollywood"|phone="123456"
+    >>: add -name 'Rafael' -lastname 'Valenzuela' -address '10 Mulholland Drv' -city 'Hollywood' -phone '123456'
 
 It is important to note that one can run the menu options using the latter's full name or the
 shortcut shown in parenthesis in the menu.
 
-    >>: a "Rafael"|"Valenzuela"|"10 Mulholland Drv"|"Hollywood"|"123456"
+    >>: a 'Rafael' 'Valenzuela' '10 Mulholland Drv' 'Hollywood' '123456'
 
 If a backup json or xml file already exists, the app can be run with the file's name as argument
 for instant loading of the stored data.
