@@ -20,11 +20,35 @@ class ListCommand(Command):
 		for k in self.params_names:
 			self.params_args[k] = kwargs[k]
 
-		self.execute()
-
 	@staticmethod
 	def help():
-		return "Help for List command"
+		help_msg = """
+		The \"list (l)\" command offers a way of listing the records stored in memory. The list can be filtered or
+		displayed in its entirety.
+		
+		This command supports the following arguments: name, lastname, city, address and phone. These arguments
+		are shared with the \"add\" command, as well. If one of those arguments is specifed at calling time, the
+		list displayed will be filtered accordingly.
+		
+		For instance, to display all records with names starting with 'J', one could do the following:
+			
+			list -name 'J*'
+		
+		Or in shor form:
+			
+			list -n 'J*'
+			
+		Next, a list with the command's keywords
+		in both forms is provided:
+		
+			name (n)
+			lastname (ln)
+		    address (ad)
+			city (c)
+			phone (ph)
+		"""
+
+		return help_msg
 
 	def prompt(self, missing_only=True):
 		while True:
@@ -56,7 +80,7 @@ class ListCommand(Command):
 
 		if len(self.params_args.keys()) == 0:
 			print("[i] Listing all records\n")
-			filter = ""
+			filter = "*"
 		else:
 			print(
 				"[i] Listing all records matching {}\n".format(["=".join([k, self.params_args[k]]) for k in self.params_args.keys()])

@@ -1,31 +1,49 @@
 import os
 import sys
+import importlib
 import re as regexp
 
 ARGS_SEP = " "
 
 
 def load_command_module(command_name):
+	"""
+	Loads and returns the module which corresponds to the command which long name matches the function's argument.
+
+	:param command_name: The long name of the command which correspondent module is to be found
+	:type command_name: str
+	:return: The command's module
+	:rtype: module
+	"""
+
 	command_name = "_".join([command_name, "command"])
+
 	# Assume the command module is already in memory
 	for k in sys.modules.keys():
 		if k.split(".").pop() == command_name:
+			# The module was found in memory. Therefore, return it
 			return sys.modules[k]
 
-	# The module is not on memory. Therefore, try to import it
+	# The module wasn't found in memory, which means it hasn't being imported yet. Therefore, try to import it
+	# from the 'commands' package
 	try:
-		exec("from commands import %s" % command_name)
+		return importlib.import_module(".{}".format(command_name), "AL_Test_App.src.commands")
 	except ImportError:
-		raise ImportError("Unable to find the \"%s\" command module" % command_name)
-
-	# Find the module in memory and return it
-	for k in sys.modules.keys():
-		if k.split(".").pop() == command_name and type(sys.modules[k]).__name__ == "module":
-			return sys.modules[k]
+		raise RuntimeError("Unable to import the correspondent module for command \'{}\'".format(command_name))
 
 
 def get_commands_names():
-	commands_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "commands")
+	"""
+	Finds the app's commands' long and short names. This function expects the commands modules files, names to
+	conform to the pattern 'longname_command.py' and each of them to contain the public constants CMD_NAME and
+	CMD_SHRT_NAME
+
+	:return: List with 2 lists with the commands' long names in the first one and the commands' short names
+	in the second
+	:rtype: list
+	"""
+
+	commands_dir = os.path.dirname(os.path.dirname(__file__))
 	command_mod_pattern = regexp.compile(r'^([a-zA-Z0-9]*)_command.py$')
 	commands_names = []
 	commands_short_names = []
@@ -33,33 +51,46 @@ def get_commands_names():
 	for fn in os.listdir(commands_dir):
 		try:
 			command_name = command_mod_pattern.match(fn).groups()[0]
-		except AttributeError:
+		except AttributeError as exc:
+			# The file doesn't correspond to a command module. Therefore, move on to the next
+			# one
 			continue
 
 		try:
 			command_mod = load_command_module(command_name)
-			assert command_mod is not None
-		except(AssertionError, RuntimeError):
+		except RuntimeError as exc:
+			# Unable to load the correspondant module. Therefore, move on to the next file
 			continue
 
 		commands_names.append(command_mod.CMD_NAME)
 		commands_short_names.append(command_mod.CMD_SHRT_NAME)
 
-	return commands_names, commands_short_names
-
-	commands_names = ["new", "open", "save", "list", "add", "delete", "export", "help", "exit"]
-	commands_short_names = ["n", "o", "s", "l", "a", "d", "e", "h", "ex"]
-
-	return commands_names, commands_short_names
+	return [commands_names, commands_short_names]
 
 
 def get_command_name_and_args_from_str(command_str):
+	"""
+	Extracts the command's name and arguments (positional and keywords) from a command string. This function doesn't
+	check whether the command name corresponds to a valid command within the app. Its only objective is to extract the
+	information stated earlier. It expects a command string of the form:
+
+	command 'posarg1' 'posarg2' 'posarg' -kwd1 'kwdarg1' -kwd 'kwdarg2'
+
+	:param command_str:
+	:type command_str:
+	:return:
+	:rtype:
+	"""
+
 	try:
 		command_name, arguments = regexp.match(
 			r'^([a-zA-Z0-9_]+)\s?((?:(?:-[a-zA-Z0-9_]+\s?)?\'[a-zA-Z0-9\s,\.\-\(\)+*]+\'\s?)*)$', command_str
 		).groups()
 	except(AttributeError, TypeError, ValueError):
-		raise RuntimeError("Error: Command mal-constructed: %s" % command_str)
+		raise RuntimeError(
+			"Error: Command mal-constructed: %s\n. Please, refer to the command\'s help for more "
+			"information" % command_str
+		)
 
 	# Parse the arguments str and extract the positional and keyword arguments
 	# Remove the trailing or leading whitespaces from the arguments string, if any
@@ -187,6 +218,23 @@ def get_command_name_and_args_from_str(command_str):
 
 
 def build_command_str(command_name, *args, **kwargs):
+	"""
+	Builds a string for calling a command. This string can be used as an input in the application. Building a command
+	string doesn't execute the command. This function is not concerned if the command name received as argument
+	corresponds to a valid command within the app. The string returned matches the following form:
+
+	command 'posarg1' 'posarg2' 'posarg' -kwd1 'kwdarg1' -kwd 'kwdarg2'
+
+	:param command_name: Command's name in either long or short version
+	:type command_name: str
+	:param args: (Optional) List of positional arguments for the command
+	:type args: list
+	:param kwargs: (Optional) List of keyword arguments for the command
+	:type kwargs: dict
+	:return: The command string
+	:rtype: str
+	"""
+
 	try:
 		pos_args_str = ARGS_SEP.join("\'%s\'" % a for a in args)
 	except(ValueError, TypeError):

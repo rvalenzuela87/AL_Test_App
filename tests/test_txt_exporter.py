@@ -1,6 +1,7 @@
 import os
 import unittest
-from ..src.utils import config_utils
+from AL_Test_App.src.utils import config_utils
+from AL_Test_App.src.exporters.exporters_builder import ExportersBuilder
 
 
 class TxtExporterTestCase(unittest.TestCase):
@@ -8,8 +9,12 @@ class TxtExporterTestCase(unittest.TestCase):
 		config_utils.reload_config()
 
 	def test_use_default_export_dir(self):
-		exporter_mod = config_utils.get_exporter_module("txt")
-		exporter = exporter_mod.__getattribute__(exporter_mod.CLASS_NAME)()
+		"""
+		Tests whether a new exporter instance uses the default directory specified in the configuration file as the
+		actual directory for exporting data
+		"""
+
+		exporter = ExportersBuilder.get_exporter("txt")
 		export_default_dir = config_utils.get_default_directory(abs=True)
 
 		self.assertEqual(
@@ -20,8 +25,12 @@ class TxtExporterTestCase(unittest.TestCase):
 		)
 
 	def test_text_formatting(self):
-		exporter_mod = config_utils.get_exporter_module("txt")
-		exporter = exporter_mod.__getattribute__(exporter_mod.CLASS_NAME)()
+		"""
+		Tests whether a call to the 'format_data' method on an exporter instance produces a string value formated in
+		a specific way
+		"""
+
+		exporter = ExportersBuilder.get_exporter("txt")
 		headers = ["name", "lastname", "phone"]
 		rows = [["Rafael", "Valenzuela Ochoa", "2135680"], ["Adriana", "Ochoa Valenzuela", "7894563"]]
 
@@ -40,8 +49,12 @@ class TxtExporterTestCase(unittest.TestCase):
 		)
 
 	def test_export_to_file(self):
-		exporter_mod = config_utils.get_exporter_module("txt")
-		exporter = exporter_mod.__getattribute__(exporter_mod.CLASS_NAME)()
+		"""
+		Tests the 'export' method of an exporter instance by making sure a '.txt' file is created in the
+		default directory after a call to the 'export' method
+		"""
+
+		exporter = ExportersBuilder.get_exporter("txt")
 		headers = ["name", "lastname", "phone"]
 		rows = [["Rafael", "Valenzuela Ochoa", "2135680"], ["Adriana", "Ochoa Valenzuela", "7894563"]]
 
@@ -67,14 +80,18 @@ class TxtExporterTestCase(unittest.TestCase):
 			)
 
 	def test_export_to_wrong_extension(self):
-		exporter_mod = config_utils.get_exporter_module("txt")
+		"""
+		Tests whether a call to the method 'set_file_name' with aun unsupported extension raises an exception
+		"""
+
+		exporter_mod = ExportersBuilder.get_exporter_module("txt")
 		error_mssg = "When the argument for the \'filename\' parameter contains an extension " \
 		             "different from \'.txt\', a RuntimeError exception is expected to occur"
 
 		with self.assertRaises(ValueError, msg=error_mssg):
 			exporter = exporter_mod.__getattribute__(exporter_mod.CLASS_NAME)(filename="testFile.csv")
 
-		exporter = exporter_mod.__getattribute__(exporter_mod.CLASS_NAME)()
+		exporter = ExportersBuilder.get_exporter("txt")
 		headers = ["name", "lastname", "phone"]
 		rows = [["Rafael", "Valenzuela Ochoa", "2135680"], ["Adriana", "Ochoa Valenzuela", "7894563"]]
 		data_txt = exporter.format_data(rows, headers)
@@ -84,23 +101,28 @@ class TxtExporterTestCase(unittest.TestCase):
 			exporter.set_file_name("testFile.csv")
 
 	def test_export_to_empty_string_filename(self):
-		exporter_mod = config_utils.get_exporter_module("txt")
-		error_mssg = "When the argument for the \'filename\' parameter contains an extension " \
-		             "different from \'.txt\', a RuntimeError exception is expected to occur"
+		"""
+		Test whether calling to the methos 'set_file_name' with an empty string raises an exception
+		"""
 
-		exporter = exporter_mod.__getattribute__(exporter_mod.CLASS_NAME)(filename="")
-
+		exporter = ExportersBuilder.get_exporter("txt")
 		headers = ["name", "lastname", "phone"]
 		rows = [["Rafael", "Valenzuela Ochoa", "2135680"], ["Adriana", "Ochoa Valenzuela", "7894563"]]
 		data_txt = exporter.format_data(rows, headers)
+		error_mssg = "When the argument for the \'filename\' parameter contains an extension " \
+		             "different from \'.txt\', a RuntimeError exception is expected to occur"
 
 		# Set the file name with an empty string as argument
 		with self.assertRaises(ValueError, msg=error_mssg):
 			exporter.set_file_name("")
 
 	def test_export_to_file_wo_extension(self):
-		exporter_mod = config_utils.get_exporter_module("txt")
-		exporter = exporter_mod.__getattribute__(exporter_mod.CLASS_NAME)()
+		"""
+		Test whether exporting to a file without extension results in the exporter instance using its default
+		extension, which, in this case, would be 'txt'
+		"""
+
+		exporter = ExportersBuilder.get_exporter("txt")
 		headers = ["name", "lastname", "phone"]
 		rows = [["Rafael", "Valenzuela Ochoa", "2135680"], ["Adriana", "Ochoa Valenzuela", "7894563"]]
 		data_txt = exporter.format_data(rows, headers)

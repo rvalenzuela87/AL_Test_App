@@ -1,5 +1,5 @@
 import unittest
-from ..src.utils import commands_utils
+from AL_Test_App.src.commands.utils import commands_utils
 
 
 class ExtractCommandInfoFromStringTestCase(unittest.TestCase):

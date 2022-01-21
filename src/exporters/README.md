@@ -5,6 +5,20 @@ to txt and html formats.
 
 This subpackage also contains the *Exporter* interface which every exporter module implements.
 
+## Design
+This package implements the **Building Factory** design pattern and, as such, a ExportersBuilder 
+class is provided under the module *exporters_builder*.
+
+The Building Factory pattern was chosen to make the addition of new supported export file types
+easier. By importing the exporters_builder module, one has access to all of the app's available
+exporter modules without knowing each one, individually.
+
+The importing of exporter modules within the exporters_builder module is done dynamically so
+there is no need to edit it once a new exporter module is added to the package.
+
+It is encouraged to use the ExportersBuilder class to create instances of the different exporter
+classes available.
+
 ## Add Custom Exporter
 To add a custom exporter module, follow these steps.
 

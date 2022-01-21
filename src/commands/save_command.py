@@ -27,11 +27,34 @@ class SaveCommand(Command):
 			else:
 				self.params_args = {"filename": filename}
 
-		self.execute()
-
 	@staticmethod
 	def help():
-		return "Help for Save command"
+		help_msg = """
+		The \"save (s)\" command provides a way for creating backups of the data in memory. It supports one 
+		argument: filename. In case no argument is provided at calling time, a prompt operation will be triggered
+		asking for the required argument. It is important that the filename provided contains only the name and 
+		extension and not its directory. The backup files are stored in the directory specified in the 
+		configuration file, by default.
+
+		The command can be called with positional argument, as such:
+
+			save 'backup.json'
+			save 'backup.xml'
+
+		Or with keyword argument, as such:
+
+			export -filename 'backup.json'
+			export -filename 'backup.xml'
+
+		Or in short form, as such:
+
+			export -fn 'backup.json'
+			export -fn 'backup.xml'
+		
+		Currently, the app offers backup support to .json and .xml files only.
+		"""
+
+		return help_msg
 
 	def prompt(self, missing_only=False):
 		supported_file_types = os.environ["SERIAL_TYPES"].split("|")

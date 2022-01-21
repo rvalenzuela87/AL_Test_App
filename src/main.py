@@ -1,43 +1,41 @@
 import sys
-import os
 
-import utils.config_utils as config_utils
-import utils.commands_utils as commands_utils
-from records_manager import RecordsManager as RecordsManager
+import AL_Test_App.src.utils.config_utils as config_utils
+from AL_Test_App.src.commands.utils import commands_utils
+from AL_Test_App.src.commands.command_builder import CommandBuilder
+from AL_Test_App.src.records_manager import RecordsManager as RecordsManager
 
 
-def start():
-	commands_names = ["new", "open", "exit"]
-	commands_short_names = ["n", "o", "ex"]
-	start_menu = " | ".join("%s (%s)" % (ln.capitalize(), sn) for ln, sn in zip(commands_names, commands_short_names))
+def build_main_menu():
+	commands_names, commands_short_names = commands_utils.get_commands_names()
+	menu_order = config_utils.get_menu_options_order()
 
-	print("[i] Welcome. Please choose one of the following options to start:\n")
-	print(start_menu)
-	choice = input("\n>>:")
+	def _order_options_list(names):
+		try:
+			order = menu_order.index(names[0])
+		except(IndexError, ValueError, AssertionError):
+			return len(menu_order)
+		else:
+			return order
 
-	while choice.lower() not in commands_names and choice.lower() not in commands_short_names:
-		print("[E] Option \'{}\' is not supported. Please, choose one of the following options to start:\n".format(choice))
-		print(start_menu)
-		choice = input("\n>>:")
+	menu_options_names = list(zip(commands_names, commands_short_names))
+	menu_options_names.sort(key=_order_options_list)
 
-	if choice.lower() not in ["exit", "ex"]:
-		# The user chose an option other than exit the application. Therefore, start the application's main loop
-		print("\n")
-		main_loop()
+	menu_options_names.append(("exit", "ex"))
+
+	main_menu = " | ".join("%s (%s)" % (ln.capitalize(), sn) for ln, sn in menu_options_names)
+
+	return main_menu
 
 def main_loop():
 	# The singleton records manager was supposed to be set during the main part of this script and may or may not
 	# hold values, already. This depends on whether the script was called with a file name as argument or not
 	rec_man = RecordsManager()
-
+	cmds_builder = CommandBuilder()
 	commands_names, commands_short_names = commands_utils.get_commands_names()
-
-	# Add new entries for the exit option
 	commands_names.append("exit")
 	commands_short_names.append("ex")
-
-	command_mods = dict.fromkeys(commands_names)
-	main_menu = " | ".join("%s (%s)" % (ln.capitalize(), sn) for ln, sn in zip(commands_names, commands_short_names))
+	main_menu = build_main_menu()
 	choice = ""
 
 	while True:
@@ -69,34 +67,16 @@ def main_loop():
 				)
 				continue
 
-		# The command name is a supported command
-		print("\n[i] Executing \'{}\' with args {} and kwargs {}\n".format(cmd_name, cmd_args, cmd_kwargs))
-
 		# If the user chose to exit the application, then break the endless loop
 		if cmd_name == "exit":
 			print("[i] Goodbye!...\n")
 			break
 
+		# If the user chose a supported command different from 'exit' then try to instantiate and execute it
 		try:
-			command_mods[cmd_name].__getattribute__(command_mods[cmd_name].CLASS_NAME)(
-				rec_man, *cmd_args, **cmd_kwargs
-			)
-		except AttributeError:
-			# The command module has not been stored yet. Therefore, initialize and add it to the list
-			try:
-				command_mods[cmd_name] = commands_utils.load_command_module(cmd_name)
-			except RuntimeError as exc:
-				print("[E] {}\n".format(exc))
-				continue
-
-			try:
-				command_mods[cmd_name].__getattribute__(command_mods[cmd_name].CLASS_NAME)(
-					rec_man, *cmd_args, **cmd_kwargs
-				)
-			except(RuntimeError, ValueError, TypeError) as exc:
-				print("\n[E] {}\n".format(exc))
+			cmds_builder.get_command(cmd_name, rec_man, *cmd_args, **cmd_kwargs).execute()
 		except(RuntimeError, ValueError, TypeError) as exc:
-			print("\n[E] {}\n".format(exc))
+			print("\n[E]{}\n".format(exc))
 
 
 if __name__ == '__main__':

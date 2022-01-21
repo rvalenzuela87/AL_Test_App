@@ -1,6 +1,8 @@
 import os
 
 from utils import config_utils
+from exporters.exporters_builder import ExportersBuilder
+from serializers.serializers_builder import SerializersBuilder
 
 
 class RecordsManager(object):
@@ -34,8 +36,7 @@ class RecordsManager(object):
 			return extension
 
 	def __force_load_serializer(self):
-		serial_mod = config_utils.get_serializer_module(self.__file_extension(self._working_file_path).lower())
-		self._serializer = serial_mod.__getattribute__(serial_mod.CLASS_NAME)()
+		self._serializer = SerializersBuilder.get_serializer(self.__file_extension(self._working_file_path).lower())
 
 	@staticmethod
 	def __file_name(file_path):
@@ -137,13 +138,21 @@ class RecordsManager(object):
 				if len(filter_parts) > 1:
 					# Make sure the column's value starts with the first filter split part and ends with the last
 					# one
-					try:
-						assert row[col + 1].startswith(filter_parts[0])
-						assert row[col + 1].endswith(filter_parts[-1])
-					except AssertionError:
-						# The column's value doesn't match the filter associated with the column. Therefore,
-						# the current row has to be discarded and the bucle can be broken
-						break
+					if len(filter_parts[0]) > 0:
+						try:
+							assert row[col + 1].startswith(filter_parts[0])
+						except AssertionError:
+							# The column's value doesn't match the filter associated with the column. Therefore,
+							# the current row has to be discarded and the bucle can be broken
+							break
+
+					if len(filter_parts[-1]) > 0:
+						try:
+							assert row[col + 1].endswith(filter_parts[-1])
+						except AssertionError:
+							# The column's value doesn't match the filter associated with the column. Therefore,
+							# the current row has to be discarded and the bucle can be broken
+							break
 				else:
 					# If the resulting list contains only one element, then, the column's value must be
 					# exactly equal to that element
@@ -199,9 +208,7 @@ class RecordsManager(object):
 
 	def export(self, filename):
 		extension = self.__file_extension(filename)
-		exporter_mod = config_utils.get_exporter_module(extension)
-
-		exporter = exporter_mod.__getattribute__(exporter_mod.CLASS_NAME)()
+		exporter = ExportersBuilder.get_exporter(extension)
 		exporter.set_file_name(filename)
 		exporter.export(exporter.format_data(self._records, self._headers))
 

@@ -7,6 +7,10 @@ CLASS_NAME = "HtmlExporter"
 
 
 class HtmlExporter(Exporter):
+	"""
+	Implementaiont of the Exporter interface for exporting the records data to hml files
+	"""
+
 	data_type = "xml"
 
 	def __init__(self, filename="", directory=""):

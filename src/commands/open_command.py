@@ -16,11 +16,34 @@ class OpenCommand(Command):
 		self.params_short_names = ["n"]
 
 		self.set_params(*args, **kwargs)
-		self.execute()
 
 	@staticmethod
 	def help():
-		return "Help for Open command"
+		help_msg = """
+		The \"open (o)\" command provides a way for opening backup files and loading them to memory. It supports one 
+		argument: filename. In case no argument is provided at calling time, a prompt operation will be triggered
+		asking for the required argument. It is important that the filename provided contains only the name and 
+		extension and not its directory. The backup files are retrieved from the backup directory specified in the 
+		configuration file, by default.
+
+		The command can be called with positional argument, as such:
+
+			open 'backup.json'
+			open 'backup.xml'
+
+		Or with keyword argument, as such:
+
+			open -filename 'backup.json'
+			open -filename 'backup.xml'
+
+		Or in short form, as such:
+
+			open -fn 'backup.json'
+			open -fn 'backup.xml'
+
+		"""
+
+		return help_msg
 
 	def prompt(self, missing_only=False):
 		supported_file_types = os.environ["SERIAL_TYPES"].split("|")

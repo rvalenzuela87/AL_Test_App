@@ -13,11 +13,27 @@ class DeleteCommand(Command):
 		self.params_short_names = ["index"]
 
 		self.set_params(*args, **kwargs)
-		self.execute()
 
 	@staticmethod
 	def help():
-		return "Help for delete command"
+		help_msg = """
+		The \"delete (d)\" command provides a way of deleting records. It takes one argument: index. In case no
+		argument is provided at calling time, a prompt operation will be triggered asking for the index of the
+		row that is to be deleted.
+		
+		The argument can be provided as positional, as such:
+			
+			delete '4'
+		
+		Or as keyword argument, as such:
+		
+			delete -index '4'
+		
+		And in short form, as such:
+		
+			delete -i '4'
+		"""
+		return help_msg
 
 	def execute(self):
 		try:

@@ -20,11 +20,33 @@ class ExportCommand(Command):
 		except RuntimeError:
 			self.prompt()
 
-		self.execute()
-
 	@staticmethod
 	def help():
-		return "Help for Export command"
+		help_msg = """
+		The \"export (e)\" command provides a way for creating reports of the data in memory. It supports one 
+		argument: filename. In case no argument is provided at calling time, a prompt operation will be triggered
+		asking for the required argument. It is important that the filename provided contains only the name and 
+		extension and not its directory. The exported files are stored in the directory specified in the 
+		configuration file, by default.
+		
+		The command can be called with positional argument, as such:
+		
+			export 'report.txt'
+			export 'report.html'
+		
+		Or with keyword argument, as such:
+			
+			export -filename 'report.txt'
+			export -filename 'report.html'
+		
+		Or in short form, as such:
+		
+			export -fn 'report.txt'
+			export -fn 'report.html'
+			
+		"""
+
+		return help_msg
 
 	def prompt(self, missing_only=False):
 		supported_file_types = os.environ["EXPORT_TYPES"].split("|")

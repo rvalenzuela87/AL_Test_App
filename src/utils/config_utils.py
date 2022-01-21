@@ -5,6 +5,13 @@ import re as regexp
 
 
 def get_conf():
+	"""
+	Returns the app's configuration values stored in the configuration file config.json
+
+	:return: A dictionary containing the app's configuration
+	:rtype: dict
+	"""
+
 	config_dir_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "config", "config.json")
 
 	with open(config_dir_path, 'r') as fh:
@@ -15,7 +22,15 @@ def get_conf():
 	except(ValueError, RuntimeError):
 		raise RuntimeError("Unable to read config file")
 
+
 def reload_config():
+	"""
+	Reloads the configuration values to memory
+
+	:return: Returns nothing
+	:rtype: None
+	"""
+
 	config = get_conf()
 	app_base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
@@ -26,6 +41,13 @@ def reload_config():
 
 
 def get_serial_types():
+	"""
+	Returns the app's supported serialization types as stated in the configuration file config.json
+
+	:return: List with the extensions supported by the app for serialization
+	:rtype: list
+	"""
+
 	try:
 		return os.environ["SERIAL_TYPES"].split("|")
 	except KeyError:
@@ -38,6 +60,13 @@ def get_serial_types():
 
 
 def get_export_types():
+	"""
+	Returns the app's supported export types as stated in the configuration file config.json
+
+	:return: List with the extensions supported by the app for exporting data
+	:rtype: list
+	"""
+
 	try:
 		return os.environ["EXPORT_TYPES"].split("|")
 	except KeyError:
@@ -50,6 +79,15 @@ def get_export_types():
 
 
 def get_serializers_dir(abs=False):
+	"""
+	Returns the app's 'serializers' package directory
+
+	:param abs: Weather the function should return the package's absoulte path or not
+	:type abs: bool
+	:return: Path to the app's serializers package
+	:rtype: str
+	"""
+
 	try:
 		dir = get_conf()["serials_dir"]
 	except KeyError:
@@ -167,6 +205,14 @@ def get_exporter_module(extension):
 
 
 def get_save_directory(abs=False):
+	"""
+	Returns the directory where the backup files are stored by default.
+
+	:param abs: Controls whether the function should return the directory's absolute path or just its name
+	:type abs: bool
+	:return: The directory where the save (backup) files are stored by default
+	:rtype: str
+	"""
 	try:
 		save_dir = os.environ["DEFAULT_SAVE_DIRECTORY"]
 	except KeyError:
@@ -184,4 +230,37 @@ def get_save_directory(abs=False):
 
 
 def get_default_directory(abs=False):
-	return get_save_directory(abs=abs)
+	"""
+	Returns the directory where the report files are stored by default.
+
+	:param abs: Controls whether the function should return the directory's absolute path or just its name
+	:type abs: bool
+	:return: The directory where the report (export) files are stored by default
+	:rtype: str
+	"""
+
+	try:
+		export_dir = os.environ["DEFAULT_EXPORT_DIRECTORY"]
+	except KeyError:
+		reload_config()
+
+		try:
+			export_dir = os.environ["DEFAULT_EXPORT_DIRECTORY"]
+		except KeyError:
+			raise RuntimeError("Unable to get the default backup directory from the configuration file (config.json)")
+
+	if not abs:
+		return os.path.split(export_dir)[1]
+	else:
+		return export_dir
+
+
+def get_menu_options_order():
+	"""
+	Returns the menu's option order as stored in the configuration file config.json
+
+	:return: List with the commands' names in the order that should appear in the app's main menu
+	:rtype: list
+	"""
+
+	return get_conf()["menu_order"]

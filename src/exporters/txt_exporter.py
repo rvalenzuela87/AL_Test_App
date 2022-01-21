@@ -6,6 +6,10 @@ CLASS_NAME = "TxtExporter"
 
 
 class TxtExporter(Exporter):
+	"""
+	Implementation of the Exporter interface for exporting the records data to txt files
+	"""
+
 	def __init__(self, filename="", directory=""):
 		super(TxtExporter, self).__init__(filename=filename, directory=directory)
 

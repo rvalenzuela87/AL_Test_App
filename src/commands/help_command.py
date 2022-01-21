@@ -1,5 +1,5 @@
 from .command import Command
-from AL_Test_App.src.utils import commands_utils
+from .command_builder import CommandBuilder
 
 CLASS_NAME = "HelpCommand"
 CMD_NAME = "help"
@@ -10,6 +10,7 @@ class HelpCommand(Command):
 	def __init__(self, receiver, *args, **kwargs):
 		super(HelpCommand, self).__init__(receiver, *args, **kwargs)
 
+		self._cmd_builder = CommandBuilder()
 		self.params_names = ["command"]
 		self.params_short_names = ["cmd"]
 
@@ -18,11 +19,11 @@ class HelpCommand(Command):
 		except RuntimeError:
 			pass
 
-		self.execute()
-
 	@staticmethod
 	def help():
-		return "Help for Help command"
+		return "To access help for a specific command, simply provide the command's full name as argument for" \
+		       "the help command, as such:\n\n\thelp 'command'\n\nSimply replace command by the desired " \
+		       "command's full name."
 
 	def execute(self):
 		try:
@@ -30,17 +31,9 @@ class HelpCommand(Command):
 		except(TypeError, KeyError):
 			print(self.help())
 		else:
-			cmds_long_names, cmds_short_names = commands_utils.get_commands_names()
-
-			for ln, sn in zip(cmds_long_names, cmds_short_names):
-				if cmd_name == sn:
-					cmd_name = ln
-				elif not cmd_name == ln:
-					continue
-
-				cmd_mod = commands_utils.load_command_module(cmd_name)
+			try:
+				cmd_mod = self._cmd_builder.get_command_module(cmd_name)
 				print(cmd_mod.__getattribute__(cmd_mod.CLASS_NAME).help())
 				print("\n")
-				break
-			else:
+			except RuntimeError:
 				print("[i] No help found for command \'{}\'\n".format(cmd_name))

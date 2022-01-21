@@ -31,6 +31,20 @@ usually encapsulates the real functionality being encapsulated by the command.
 Every basic command: add, delete, export, list, new, open and save take the app's 
 *RecordsManager* singleton as their receiver.
 
+## Design
+This package implements the **Building Factory** design pattern and, as such, a CommandsBuilder 
+class is provided under the module *commands_builder* inside this package.
+
+The Building Factory pattern was chosen to make the addition of new command modules easier.
+By importing the commands_builder module, one has access to all of the app's available
+commands modules without knowing each one, individually.
+
+The importing of command modules within the commands_builder module is done dynamically so
+there is no need to edit it once a new command module is added to the package.
+
+It is encouraged to use the CommandsBuilder class to create instances of the different command
+classes available.
+
 ## Add Custom Command
 To add a custom command, a new module must be created under the *commands* subpackage and must
 be named with the following convention: 

@@ -6,20 +6,22 @@ class Serializer(object):
 
 	def load(self, filepath):
 		"""
-		Loads the information contained in the object received as argument to a python list of lists.
+		Loads the information contained in the object received as argument to a python dictionary. This method needs
+		to be defined by implementations of Serializer.
 
-		:return: Python list of lists of size n x 5. Where n = records total
-		:rtype: list
+		:return: Python dictionary with 5 keys each with a list of size n, where n = recors total
+		:rtype: dict
 		"""
 		pass
 
 	def serial(self, data, headers):
 		"""
+		Serializes the data and headers received as argument to the supported extension. This method needs ot be
+		defined by implementations of Serializer.
 
-		:param data: Python list of lists of size n x 3, where n = records total
+		:param data: Python list of lists of size n x 5, where n = records total
 		:type data: list
-		:return: Serialized data. The exact type depends on this method's definition in implementations
-			of Serializer
+		:return: Serialized data. The exact type depends on this method's definition in implementations of Serializer
 		:rtype: *
 		"""
 		pass

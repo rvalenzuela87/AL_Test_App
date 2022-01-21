@@ -4,5 +4,6 @@
   "export_types": ["txt", "html"],
   "exporters": "exporters",
   "default_save_dir": "backup",
-  "default_export_dir": "reports"
+  "default_export_dir": "reports",
+  "menu_order": ["new", "open", "export", "save", "list", "add", "delete", "help"]
 }

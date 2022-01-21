@@ -12,11 +12,13 @@ class NewCommand(Command):
 		self.params_names = []
 		self.params_short_names = []
 
-		self.execute()
-
 	@staticmethod
 	def help():
-		return "Help for the New command"
+		help_msg = """
+		The \"new (n)\" command clears the list in memory. It takes no arguments.
+		"""
+
+		return help_msg
 
 	def set_params(self, *args, **kwargs):
 		pass

@@ -18,6 +18,9 @@ to ensure consistency of data throught the app's many modules.
 The records in memory are stored inside an instance of the singleton class *records_manager.RecordsManager*.
 
 ## Usage
+First of all, make sure the app's main module is located inside a python path directory or add its current
+directory to the python path environment variable.
+
 To run the app execute the *main.py* file, located in the app's *src* package, in a command
 line terminal.
 
